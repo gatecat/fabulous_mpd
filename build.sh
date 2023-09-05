@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+set -ex
 if [ -z "$1" ]; then
 	echo "design must be specified"
 	exit 1
 fi
+rm -rf "$1/runs/latest"
 docker run --rm -v ${OPENLANE_ROOT}:/openlane -v ${PDK_ROOT}:${PDK_ROOT} -v `pwd`:/work -e PDK_ROOT=${PDK_ROOT} -e PDK=sky130A -u `id -u`:`id -g` ${OPENLANE_IMAGE_NAME} /bin/bash -c "./flow.tcl -overwrite -ignore_mismatches -design /work/openlane/$1 -run_path /work/openlane/$1/runs -tag latest"
 mkdir -p gds
 mkdir -p lef
