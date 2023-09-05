@@ -18,3 +18,4 @@
 !ConfigFSM.v
 !Config_access.v
 !RegFile_32x4.v
+!User_project_IO.v
