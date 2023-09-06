@@ -38,9 +38,7 @@
  */
 
 module mpd_io_ctrl #(
-    parameter GPIO_DEFAULTS = 13'h001,
-    parameter BASE_ADR  = 32'h 2100_0000,
-    parameter GPIO_CONFIG = 8'h00
+    parameter GPIO_DEFAULTS = 13'h001
 ) (
     input fabric_done,
     input [11:0] fabric_config,

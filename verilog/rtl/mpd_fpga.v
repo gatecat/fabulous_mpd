@@ -1,3 +1,4 @@
+`define OPENFRAME_IO_PADS 44
 
 module mpd_fpga (
     `ifdef USE_POWER_PINS

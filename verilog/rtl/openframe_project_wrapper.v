@@ -101,7 +101,7 @@ module openframe_project_wrapper (
     input  [`OPENFRAME_IO_PADS-1:0] gpio_loopback_zero
 );
 
-	picosoc openframe_example (
+	mpd_fpga openframe_example (
 `ifdef USE_POWER_PINS
 		.VPWR(vccd1),
 		.VGND(vssd1),
