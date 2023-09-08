@@ -194,8 +194,36 @@ module mpd_fpga (
     endgenerate
     // TODO: integrate user projects...
 
+
+
     assign fab_usr_clk_o = UIO_BOT_UOUT[0];
-    wire [3:0] prj_sel = UIO_BOT_UOUT[4:1];
+    wire [2:0] prj_sel = UIO_BOT_UOUT[3:1];
+    wire usr_reset = UIO_BOT_UOUT[2];
+
+    wire [128*4-1:0] uprj_hpc_out;
+    assign UIO_TOP_UIN[127:0] = uprj_hpc_out[prj_sel[1:0] * 128 +: 128];
+    assign UIO_TOP_UIN[159:128] = 1'b0;
+
+    // user projects
+
+    RISCV_core RISCV_core(
+        .clk(user_clk), .reset(usr_reset),
+       .o_rftop_rd1(UIO_BOT_UOUT[63:32]),
+       .o_rfbot_rd2(UIO_BOT_UOUT[95:64]),
+       .i_ROM_instruction(UIO_BOT_UOUT[127:96]),
+       .i_dmem_read_data(UIO_BOT_UOUT[159:128]),
+       .o_rftop_rs1(uprj_hpc_out[7:0]),
+       .o_rfbot_rs2(uprj_hpc_out[15:8]),
+       .o_rf_we(uprj_hpc_out[16]),
+       .o_rf_wa(uprj_hpc_out[24:17]),
+       .o_rf_wd(uprj_hpc_out[56:25]),
+       .o_ROM_addr(uprj_hpc_out[64:57]),
+       .o_dmem_addr(uprj_hpc_out[74:65]),
+       .o_dmem_write_data(uprj_hpc_out[106:75]),
+       .o_dmem_write_enable(uprj_hpc_out[110:107])
+    );
+    assign uprj_hpc_out[127:111] = 1'b0;
+
 
     assign sys_gpio_oeb[6:0] = 7'b00011111;
     assign sys_gpio_oeb[24:7] = uprj_T;
