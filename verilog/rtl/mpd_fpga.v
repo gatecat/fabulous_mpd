@@ -57,6 +57,16 @@ module mpd_fpga (
     // User project external IO
     wire [17:0] uprj_I, uprj_O, uprj_T;
 
+    // heartbeat (so we know clock is alive)
+    reg [21:0] beat_ctr;
+    always @(posedge fabric_clk, negedge resetb) begin
+        if (!resetb)
+            beat_ctr <= 21'b0;
+        else
+            beat_ctr <= beat_ctr + 1'b1;
+    end
+    assign heart_led = beat_ctr[21];
+
     eFPGA_top fpga_i (
         .A_config_east_C(A_config_east_C), .A_config_west_C(A_config_west_C),
         .B_config_east_C(B_config_east_C), .B_config_west_C(B_config_west_C),
@@ -196,9 +206,9 @@ module mpd_fpga (
 
 
 
-    assign fab_usr_clk_o = UIO_BOT_UOUT[0];
-    wire [2:0] prj_sel = UIO_BOT_UOUT[3:1];
-    wire usr_reset = UIO_BOT_UOUT[2];
+    assign fab_usr_clk_o = UIO_TOP_UOUT[0];
+    wire [1:0] prj_sel = UIO_TOP_UOUT[3:2];
+    wire user_reset = UIO_TOP_UOUT[1];
 
     wire [128*4-1:0] uprj_hpc_out;
     assign UIO_TOP_UIN[127:0] = uprj_hpc_out[prj_sel[1:0] * 128 +: 128];
@@ -207,11 +217,11 @@ module mpd_fpga (
     // user projects
 
     RISCV_core RISCV_core(
-        .clk(user_clk), .reset(usr_reset),
-       .o_rftop_rd1(UIO_BOT_UOUT[63:32]),
-       .o_rfbot_rd2(UIO_BOT_UOUT[95:64]),
-       .i_ROM_instruction(UIO_BOT_UOUT[127:96]),
-       .i_dmem_read_data(UIO_BOT_UOUT[159:128]),
+        .clk(user_clk), .reset(user_reset),
+       .o_rftop_rd1(UIO_TOP_UOUT[63:32]),
+       .o_rfbot_rd2(UIO_TOP_UOUT[95:64]),
+       .i_ROM_instruction(UIO_TOP_UOUT[127:96]),
+       .i_dmem_read_data(UIO_TOP_UOUT[159:128]),
        .o_rftop_rs1(uprj_hpc_out[7:0]),
        .o_rfbot_rs2(uprj_hpc_out[15:8]),
        .o_rf_we(uprj_hpc_out[16]),
@@ -223,6 +233,165 @@ module mpd_fpga (
        .o_dmem_write_enable(uprj_hpc_out[110:107])
     );
     assign uprj_hpc_out[127:111] = 1'b0;
+
+    SLICE slice_i (
+        .APPLY_INIT(UIO_TOP_UOUT[32]),
+        .H_I(UIO_TOP_UOUT[33]),
+        .H6(UIO_TOP_UOUT[34]),
+        .H5(UIO_TOP_UOUT[35]),
+        .H4(UIO_TOP_UOUT[36]),
+        .H3(UIO_TOP_UOUT[37]),
+        .H2(UIO_TOP_UOUT[38]),
+        .H1(UIO_TOP_UOUT[39]),
+        .CKEN_B4(UIO_TOP_UOUT[40]),
+        .CKEN_B3(UIO_TOP_UOUT[41]),
+        .G_I(UIO_TOP_UOUT[42]),
+        .G6(UIO_TOP_UOUT[43]),
+        .G5(UIO_TOP_UOUT[44]),
+        .G4(UIO_TOP_UOUT[45]),
+        .G3(UIO_TOP_UOUT[46]),
+        .G2(UIO_TOP_UOUT[47]),
+        .G1(UIO_TOP_UOUT[48]),
+        .SRST_B2(UIO_TOP_UOUT[49]),
+        .F_I(UIO_TOP_UOUT[50]),
+        .F6(UIO_TOP_UOUT[51]),
+        .F5(UIO_TOP_UOUT[52]),
+        .F4(UIO_TOP_UOUT[53]),
+        .F3(UIO_TOP_UOUT[54]),
+        .F2(UIO_TOP_UOUT[55]),
+        .F1(UIO_TOP_UOUT[56]),
+        .CLK_B2(user_clk),
+        .E_I(UIO_TOP_UOUT[58]),
+        .E6(UIO_TOP_UOUT[59]),
+        .E5(UIO_TOP_UOUT[60]),
+        .E4(UIO_TOP_UOUT[61]),
+        .E3(UIO_TOP_UOUT[62]),
+        .E2(UIO_TOP_UOUT[63]),
+        .E1(UIO_TOP_UOUT[64]),
+        .HX(UIO_TOP_UOUT[65]),
+        .GX(UIO_TOP_UOUT[66]),
+        .FX(UIO_TOP_UOUT[67]),
+        .EX(UIO_TOP_UOUT[68]),
+        .CIN(UIO_TOP_UOUT[69]),
+        .AX(UIO_TOP_UOUT[70]),
+        .BX(UIO_TOP_UOUT[71]),
+        .CX(UIO_TOP_UOUT[72]),
+        .DX(UIO_TOP_UOUT[73]),
+        .D_I(UIO_TOP_UOUT[74]),
+        .D6(UIO_TOP_UOUT[75]),
+        .D5(UIO_TOP_UOUT[76]),
+        .D4(UIO_TOP_UOUT[77]),
+        .D3(UIO_TOP_UOUT[78]),
+        .D2(UIO_TOP_UOUT[79]),
+        .D1(UIO_TOP_UOUT[80]),
+        .SRST_B1(UIO_TOP_UOUT[81]),
+        .CKEN_B1(UIO_TOP_UOUT[82]),
+        .CKEN_B2(UIO_TOP_UOUT[83]),
+        .C_I(UIO_TOP_UOUT[84]),
+        .C6(UIO_TOP_UOUT[85]),
+        .C5(UIO_TOP_UOUT[86]),
+        .C4(UIO_TOP_UOUT[87]),
+        .C3(UIO_TOP_UOUT[88]),
+        .C2(UIO_TOP_UOUT[89]),
+        .C1(UIO_TOP_UOUT[90]),
+        .CLK_B1(user_clk),
+        .B_I(UIO_TOP_UOUT[92]),
+        .B6(UIO_TOP_UOUT[93]),
+        .B5(UIO_TOP_UOUT[94]),
+        .B4(UIO_TOP_UOUT[95]),
+        .B3(UIO_TOP_UOUT[96]),
+        .B2(UIO_TOP_UOUT[97]),
+        .B1(UIO_TOP_UOUT[98]),
+        .A_I(UIO_TOP_UOUT[99]),
+        .A6(UIO_TOP_UOUT[100]),
+        .A5(UIO_TOP_UOUT[101]),
+        .A4(UIO_TOP_UOUT[102]),
+        .A3(UIO_TOP_UOUT[103]),
+        .A2(UIO_TOP_UOUT[104]),
+        .A1(UIO_TOP_UOUT[105]),
+        .H_O(uprj_hpc_out[128]),
+        .COUT(uprj_hpc_out[129]),
+        .HQ2(uprj_hpc_out[130]),
+        .HQ(uprj_hpc_out[131]),
+        .HMUX(uprj_hpc_out[132]),
+        .G_O(uprj_hpc_out[133]),
+        .GQ2(uprj_hpc_out[134]),
+        .GQ(uprj_hpc_out[135]),
+        .GMUX(uprj_hpc_out[136]),
+        .F_O(uprj_hpc_out[137]),
+        .FQ2(uprj_hpc_out[138]),
+        .FQ(uprj_hpc_out[139]),
+        .FMUX(uprj_hpc_out[140]),
+        .E_O(uprj_hpc_out[141]),
+        .EQ2(uprj_hpc_out[142]),
+        .EQ(uprj_hpc_out[143]),
+        .EMUX(uprj_hpc_out[144]),
+        .D_O(uprj_hpc_out[145]),
+        .DQ2(uprj_hpc_out[146]),
+        .DQ(uprj_hpc_out[147]),
+        .DMUX(uprj_hpc_out[148]),
+        .C_O(uprj_hpc_out[149]),
+        .CQ2(uprj_hpc_out[150]),
+        .CQ(uprj_hpc_out[151]),
+        .CMUX(uprj_hpc_out[152]),
+        .B_O(uprj_hpc_out[153]),
+        .BQ2(uprj_hpc_out[154]),
+        .BQ(uprj_hpc_out[155]),
+        .BMUX(uprj_hpc_out[156]),
+        .A_O(uprj_hpc_out[157]),
+        .AQ2(uprj_hpc_out[158]),
+        .AQ(uprj_hpc_out[159]),
+
+    //Tile IO ports from BELs
+        //input UserCLK,
+        //output UserCLKo,
+        .FrameData(UIO_TOP_UOUT[137:106]), //CONFIG_PORT
+        //output [FrameBitsPerRow -1:0] FrameData_O,
+        .FrameStrobe(UIO_TOP_UOUT[158:138]) //CONFIG_PORT
+    );
+    assign uprj_hpc_out[255:160] = 1'b0;
+
+    // botto modules
+    uart_clock uart_clock_i (
+        .i_clk(user_clk),
+        .i_reset(user_reset),
+        .i_sampling_delay(UIO_BOT_UOUT[63:32]),
+        .o_clk(uprj_I[0])
+    );
+    assign uprj_T[0] = 1'b0;
+
+    wire usb_oe;
+    usb_cdc usb_i (
+      .app_clk_i(user_clk),
+      .clk_i(user_clk),
+      .rstn_i(~user_reset),
+
+      .configured_o(uprj_hpc_out[256]),
+
+      .dn_rx_i(uprj_O[1]),
+      .dn_tx_o(uprj_I[1]),
+      .dp_pu_o(uprj_I[3]),
+      .dp_rx_i(uprj_O[2]),
+      .dp_tx_o(uprj_I[2]),
+      .tx_en_o(usb_oe),
+
+      .frame_o(uprj_hpc_out[268:257]),
+      .in_data_i(UIO_TOP_UOUT[39:32]),
+      .in_ready_o(uprj_hpc_out[269]),
+      .in_valid_i(UIO_TOP_UOUT[40]),
+      .out_data_o(uprj_hpc_out[277:270]),
+      .out_ready_i(UIO_TOP_UOUT[41]),
+      .out_valid_o(uprj_hpc_out[278])
+    );
+    assign uprj_hpc_out[383:279] = 1'b0;
+
+
+    assign uprj_T[3:1] = {1'b0, ~usb_oe, ~usb_oe};
+
+    assign uprj_hpc_out[511:384] = 1'b0;
+    assign UIO_BOT_UIN[159:0] = 1'b0;
+    assign uprj_I[17:4] = {13{1'b1}};
+    assign uprj_T[17:4] = {13{1'b1}};
 
 
     assign sys_gpio_oeb[6:0] = 7'b00011111;
