@@ -375,15 +375,15 @@ module mpd_fpga (
       .dp_tx_o(uprj_I[2]),
       .tx_en_o(usb_oe),
 
-      .frame_o(uprj_hpc_out[268:257]),
+      .frame_o(uprj_hpc_out[267:257]),
       .in_data_i(UIO_TOP_UOUT[39:32]),
-      .in_ready_o(uprj_hpc_out[269]),
+      .in_ready_o(uprj_hpc_out[268]),
       .in_valid_i(UIO_TOP_UOUT[40]),
-      .out_data_o(uprj_hpc_out[277:270]),
+      .out_data_o(uprj_hpc_out[276:269]),
       .out_ready_i(UIO_TOP_UOUT[41]),
-      .out_valid_o(uprj_hpc_out[278])
+      .out_valid_o(uprj_hpc_out[277])
     );
-    assign uprj_hpc_out[383:279] = 1'b0;
+    assign uprj_hpc_out[383:278] = 1'b0;
 
 
     assign uprj_T[3:1] = {1'b0, ~usb_oe, ~usb_oe};

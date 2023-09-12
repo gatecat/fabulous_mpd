@@ -167,7 +167,7 @@ module usb_cdc(
   output dp_tx_o,
   output tx_en_o,
 
-  output [11:0] frame_o,
+  output [10:0] frame_o,
   input [7:0] in_data_i,
   output in_ready_o,
   input in_valid_i,
