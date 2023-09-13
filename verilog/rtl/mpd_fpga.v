@@ -92,10 +92,10 @@ module mpd_fpga (
             // 18 user IO start from 7, controlled from east side
             for (ii = 0; ii < 18; ii = ii + 1) begin
                 assign fabric_config[(ii + 7) * 12 +: 12] =
-                    ((ii % 4) == 3) ? D_config_east_C[(ii / 4) * 12 +: 12] :
-                    ((ii % 4) == 2) ? C_config_east_C[(ii / 4) * 12 +: 12] :
-                    ((ii % 4) == 1) ? B_config_east_C[(ii / 4) * 12 +: 12] :
-                                      A_config_east_C[(ii / 4) * 12 +: 12];
+                    ((ii % 4) == 3) ? {6'b0, D_config_east_C[(ii / 4) * 12 +: 6]} :
+                    ((ii % 4) == 2) ? {6'b0, C_config_east_C[(ii / 4) * 12 +: 6]} :
+                    ((ii % 4) == 1) ? {6'b0, B_config_east_C[(ii / 4) * 12 +: 6]} :
+                                      {6'b0, A_config_east_C[(ii / 4) * 12 +: 6]};
             end
             // 12 fabric IO start from 25, controlled from west side
             for (ii = 0; ii < 12; ii = ii + 1) begin
