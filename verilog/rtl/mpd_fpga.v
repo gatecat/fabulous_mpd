@@ -415,8 +415,14 @@ module mpd_fpga (
     assign uprj_T[4] = 1'b0;
     assign UIO_BOT_UIN[59:40] = 1'b0;
 
+    quad_wrapper quad_wrapper_i (
+        .clock(user_clk),
+        .i_vec_20(UIO_BOT_UOUT[79:60]),
+        .o_vec_20(UIO_BOT_UIN[79:60])
+    );
+
     // unused bottom slots
-    assign UIO_BOT_UIN[159:60] = 1'b0;
+    assign UIO_BOT_UIN[159:80] = 1'b0;
 
     assign uprj_T[3:1] = {1'b0, ~usb_oe, ~usb_oe};
 
