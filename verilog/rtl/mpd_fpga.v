@@ -392,7 +392,7 @@ module mpd_fpga (
       .srcC(UIO_TOP_UOUT[50:48]),
     );
 
-    assign uprj_hpc_out[511:438] = 1'b0;
+    assign uprj_hpc_out[511:439] = 1'b0;
 
     // bottom modules
     // UART clock has 32 inputs: 2 slots
