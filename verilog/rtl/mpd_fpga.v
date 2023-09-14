@@ -349,16 +349,10 @@ module mpd_fpga (
         //output [FrameBitsPerRow -1:0] FrameData_O,
         .FrameStrobe(UIO_TOP_UOUT[158:138]) //CONFIG_PORT
     );
+
+
     assign uprj_hpc_out[255:160] = 1'b0;
 
-    // botto modules
-    uart_clock uart_clock_i (
-        .i_clk(user_clk),
-        .i_reset(user_reset),
-        .i_sampling_delay(UIO_BOT_UOUT[63:32]),
-        .o_clk(uprj_I[0])
-    );
-    assign uprj_T[0] = 1'b0;
 
     wire usb_oe;
     usb_cdc usb_i (
@@ -385,13 +379,49 @@ module mpd_fpga (
     );
     assign uprj_hpc_out[383:278] = 1'b0;
 
+    Stump stump_i(
+      .clk(user_clk), .rst(user_reset),
+      .address(uprj_hpc_out[399:384]),
+      .cc(uprj_hpc_out[403:400]),
+      .data_in(UIO_TOP_UOUT[47:32]),
+      .data_out(uprj_hpc_out[419:404]),
+      .fetch(uprj_hpc_out[420]),
+      .mem_ren(uprj_hpc_out[421]),
+      .mem_wen(uprj_hpc_out[422]),
+      .regC(uprj_hpc_out[438:423]),
+      .srcC(UIO_TOP_UOUT[50:48]),
+    );
+
+    assign uprj_hpc_out[511:438] = 1'b0;
+
+    // bottom modules
+    // UART clock has 32 inputs: 2 slots
+    uart_clock uart_clock_i (
+        .i_clk(user_clk),
+        .i_reset(user_reset),
+        .i_sampling_delay(UIO_BOT_UOUT[31:0]),
+        .o_clk(uprj_I[0])
+    );
+    assign uprj_T[0] = 1'b0;
+    assign UIO_BOT_UIN[39:0] = 1'b0;
+
+    // note: DAC module has been renamed from top to dac_top for disambiguation
+    dac_top dac_top_i (
+        .clk(user_clk),
+        .rst(user_reset),
+        .in(UIO_BOT_UOUT[55:40]),
+        .out(uprj_I[4])
+    );
+    assign uprj_T[4] = 1'b0;
+    assign UIO_BOT_UIN[59:40] = 1'b0;
+
+    // unused bottom slots
+    assign UIO_BOT_UIN[159:60] = 1'b0;
 
     assign uprj_T[3:1] = {1'b0, ~usb_oe, ~usb_oe};
 
-    assign uprj_hpc_out[511:384] = 1'b0;
-    assign UIO_BOT_UIN[159:0] = 1'b0;
-    assign uprj_I[17:4] = {13{1'b1}};
-    assign uprj_T[17:4] = {13{1'b1}};
+    assign uprj_I[17:5] = {12{1'b1}};
+    assign uprj_T[17:5] = {12{1'b1}};
 
 
     assign sys_gpio_oeb[6:0] = 7'b00011111;

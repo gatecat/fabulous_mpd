@@ -176,3 +176,26 @@ module usb_cdc(
   output out_valid_o
 );
 endmodule
+
+(* blackbox *)
+module Stump(
+  input clk, rst,
+  output [15:0] address,
+  output [3:0] cc,
+  input [15:0] data_in,
+  output [15:0] data_out,
+  output fetch,
+  output mem_ren,
+  output mem_wen,
+  output [15:0] regC,
+  input [2:0] srcC,
+);
+endmodule
+
+(* blackbox *)
+module dac_top(
+  input clk, rst,
+  input [15:0] in,
+  output out
+);
+endmodule
