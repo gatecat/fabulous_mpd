@@ -438,7 +438,7 @@ module mpd_fpga (
         .o_vec_20(UIO_BOT_UIN[119:100])
     );
 
-    assign UIO_BOT_UIN[159:100] = 1'b0;
+    assign UIO_BOT_UIN[159:120] = 1'b0;
 
     assign uprj_T[3:1] = {1'b0, ~usb_oe, ~usb_oe};
 
