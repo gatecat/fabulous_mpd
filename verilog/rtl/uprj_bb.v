@@ -201,8 +201,25 @@ module dac_top(
 endmodule
 
 (* blackbox *)
-module quad_wrapper(
+module double_wrapper(
   input clock,
+  input [19:0] i_vec_20,
+  output [19:0] o_vec_20
+);
+endmodule
+
+(* blackbox *)
+module karatsuba_wrapper(
+  input clk,
+  input [19:0] i_vec_20,
+  output [19:0] o_vec_20
+);
+endmodule
+
+(* blackbox *)
+module pwm_wrapper(
+  input clk,
+  input reset,
   input [19:0] i_vec_20,
   output [19:0] o_vec_20
 );

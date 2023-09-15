@@ -395,34 +395,50 @@ module mpd_fpga (
     assign uprj_hpc_out[511:439] = 1'b0;
 
     // bottom modules
-    // UART clock has 32 inputs: 2 slots
-    uart_clock uart_clock_i (
-        .i_clk(user_clk),
-        .i_reset(user_reset),
-        .i_sampling_delay(UIO_BOT_UOUT[31:0]),
-        .o_clk(uprj_I[0])
-    );
-    assign uprj_T[0] = 1'b0;
-    assign UIO_BOT_UIN[39:0] = 1'b0;
 
     // note: DAC module has been renamed from top to dac_top for disambiguation
     dac_top dac_top_i (
         .clk(user_clk),
         .rst(user_reset),
-        .in(UIO_BOT_UOUT[55:40]),
+        .in(UIO_BOT_UOUT[15:0]),
         .out(uprj_I[4])
     );
     assign uprj_T[4] = 1'b0;
-    assign UIO_BOT_UIN[59:40] = 1'b0;
+    assign UIO_BOT_UIN[19:0] = 1'b0;
 
-    quad_wrapper quad_wrapper_i (
-        .clock(user_clk),
-        .i_vec_20(UIO_BOT_UOUT[79:60]),
-        .o_vec_20(UIO_BOT_UIN[79:60])
+    // PWM [39:20]
+    pwm_wrapper pwm_i (
+        .clk(user_clk),
+        .reset(user_reset),
+        .i_vec_20(UIO_BOT_UOUT[39:20]),
+        .o_vec_20(UIO_BOT_UIN[39:20])
     );
 
-    // unused bottom slots
-    assign UIO_BOT_UIN[159:80] = 1'b0;
+    // Karatsuba (x2) [59:40]
+    karatsuba_wrapper kara_i (
+        .clk(user_clk),
+        .i_vec_20(UIO_BOT_UOUT[59:40]),
+        .o_vec_20(UIO_BOT_UIN[59:40])
+    );
+
+    // UART clock has 32 inputs, steal karatsuba's IO
+    uart_clock uart_clock_i (
+        .i_clk(user_clk),
+        .i_reset(user_reset),
+        .i_sampling_delay(UIO_BOT_UOUT[91:60]),
+        .o_clk(uprj_I[0])
+    );
+    assign uprj_T[0] = 1'b0;
+    assign UIO_BOT_UIN[99:60] = 1'b0;
+
+    // double_wrapper
+    double_wrapper double_wrapper_i (
+        .clock(user_clk),
+        .i_vec_20(UIO_BOT_UOUT[119:100]),
+        .o_vec_20(UIO_BOT_UIN[119:100])
+    );
+
+    assign UIO_BOT_UIN[159:100] = 1'b0;
 
     assign uprj_T[3:1] = {1'b0, ~usb_oe, ~usb_oe};
 
